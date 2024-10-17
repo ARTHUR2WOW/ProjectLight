@@ -72,7 +72,11 @@ function init() {
           availableLanguages.push(lang);
         }
       });
-
+      
+      if (availableLanguages.indexOf("language-c-cpp") >=0) {
+        if (availableLanguages.indexOf("language-c") < 0) availableLanguages.push("language-c"); 
+        if (availableLanguages.indexOf("language-cpp") < 0) availableLanguages.push("language-cpp"); 
+      }
       // Set initial language
       var lang = window.localStorage.getItem("FMOD.Documents.selected-language");
 

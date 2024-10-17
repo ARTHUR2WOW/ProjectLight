@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 
 #pragma once
 
@@ -15,7 +15,8 @@ UENUM()
 enum class EFMODEventControlKey : uint8
 {
     Stop = 0,
-    Play = 1
+    Play = 1,
+    Pause = 2
 };
 
 USTRUCT()
@@ -29,19 +30,13 @@ struct FFMODEventControlChannel : public FMovieSceneByteChannel
 template <>
 struct TStructOpsTypeTraits<FFMODEventControlChannel> : public TStructOpsTypeTraitsBase2<FFMODEventControlChannel>
 {
-    enum
-    {
-        WithStructuredSerializeFromMismatchedTag = true
-    };
+    enum { WithStructuredSerializeFromMismatchedTag = true };
 };
 
 template <>
 struct TMovieSceneChannelTraits<FFMODEventControlChannel> : TMovieSceneChannelTraitsBase<FFMODEventControlChannel>
 {
-    enum
-    {
-        SupportsDefaults = false
-    };
+    enum { SupportsDefaults = false };
 
 #if WITH_EDITOR
 

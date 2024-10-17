@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 using UnrealBuildTool;
 using System;
 using System.IO;
@@ -51,9 +51,10 @@ namespace UnrealBuildTool.Rules
 
             if (Target.bBuildEditor == true)
             {
+                PublicDependencyModuleNames.Add("DeveloperToolSettings");
                 PrivateDependencyModuleNames.Add("AssetRegistry");
-                PrivateDependencyModuleNames.Add("UnrealEd");
                 PrivateDependencyModuleNames.Add("Settings");
+                PrivateDependencyModuleNames.Add("UnrealEd");
             }
 
             DynamicallyLoadedModuleNames.AddRange(
@@ -90,13 +91,7 @@ namespace UnrealBuildTool.Rules
 
                 libPath = System.IO.Path.Combine(LibRootDirectory, platformName);
 
-                if (Target.Platform.ToString() == "UWP64")
-                {
-                    linkExtension = ".lib";
-                    dllExtension = ".dll";
-                    bAddDelayLoad = true;
-                }
-                else if (Target.IsInPlatformGroup(UnrealPlatformGroup.Windows))
+                if (Target.IsInPlatformGroup(UnrealPlatformGroup.Windows))
                 {
                     linkExtension = "_vc.lib";
                     dllExtension = ".dll";
@@ -165,7 +160,7 @@ namespace UnrealBuildTool.Rules
 
             if (Target.IsInPlatformGroup(UnrealPlatformGroup.Android))
             {
-                string[] archs = new string[] { "armeabi-v7a", "arm64-v8a", "x86_64" };
+                string[] archs = new string[] { "arm64-v8a", "x86_64" };
                 foreach (string arch in archs)
                 {
                     string LibPath = System.IO.Path.Combine(libPath, arch);
@@ -183,6 +178,12 @@ namespace UnrealBuildTool.Rules
             {
                 RuntimeDependencies.Add("$(TargetOutputDir)/" + fmodDllName, fmodDllPath);
                 RuntimeDependencies.Add("$(TargetOutputDir)/" + fmodStudioDllName, fmodStudioDllPath);
+                foreach (string plugin in plugins)
+                {
+                    string pluginPath = System.IO.Path.Combine(libPath, plugin + dllExtension);
+                    System.Console.WriteLine("Adding reference to FMOD plugin: " + pluginPath);
+                    RuntimeDependencies.Add("$(TargetOutputDir)/" + plugin + dllExtension, pluginPath);
+                }
             }
             else if (bAddRuntimeDependencies)
             {
@@ -228,6 +229,9 @@ namespace UnrealBuildTool.Rules
                     }
                 }
             }
+
+            FMODAudioLink.Apply(this, Target);
+            FMODAudioLinkEditor.Apply(this, Target);
         }
 
         private System.Collections.Generic.List<string> GetPlugins(string BasePath)
@@ -253,6 +257,19 @@ namespace UnrealBuildTool.Rules
                 }
             }
             return AllPlugins;
+        }
+
+        public void AddModule(string Module, bool AddPublic = true)
+        {
+            ConditionalAddModuleDirectory(
+                EpicGames.Core.DirectoryReference.Combine(new EpicGames.Core.DirectoryReference(ModuleDirectory), "..", Module));
+
+            ExternalDependencies.Add(Path.Combine(ModuleDirectory, "..", Module, Module + ".Build.cs"));
+            if (AddPublic)
+            {
+                PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "..", Module, "Public"));
+            }
+            PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "..", Module, "Private"));
         }
     }
 }

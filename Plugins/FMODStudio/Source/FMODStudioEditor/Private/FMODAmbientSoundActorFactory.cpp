@@ -1,10 +1,10 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 
 #include "FMODAmbientSoundActorFactory.h"
 #include "FMODStudioEditorPrivatePCH.h"
 #include "FMODAmbientSound.h"
 #include "FMODEvent.h"
-#include "AssetRegistry/Public/AssetData.h"
+#include "AssetRegistry/AssetData.h"
 #include "Editor/EditorEngine.h"
 
 UFMODAmbientSoundActorFactory::UFMODAmbientSoundActorFactory(const FObjectInitializer &ObjectInitializer)
@@ -50,18 +50,4 @@ UObject *UFMODAmbientSoundActorFactory::GetAssetFromActorInstance(AActor *Instan
 
     check(SoundActor->AudioComponent);
     return SoundActor->AudioComponent->Event;
-}
-
-void UFMODAmbientSoundActorFactory::PostCreateBlueprint(UObject *Asset, AActor *CDO)
-{
-    if (Asset != NULL && CDO != NULL)
-    {
-        UFMODEvent *Event = Cast<UFMODEvent>(Asset);
-
-        if (Event != NULL)
-        {
-            AFMODAmbientSound *NewSound = CastChecked<AFMODAmbientSound>(CDO);
-            NewSound->AudioComponent->Event = Event;
-        }
-    }
 }

@@ -1,11 +1,10 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 
 #pragma once
 
 #include "FMODAudioComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Containers/UnrealString.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
 #include "FMODBlueprintStatics.generated.h"
 
 class UFMODAudioComponent;
@@ -94,7 +93,7 @@ class FMODSTUDIO_API UFMODBlueprintStatics : public UBlueprintFunctionLibrary
 	 * @param bBlocking - determines whether the bank will load synchronously
 	 * @param bLoadSampleData - determines whether sample data will be preloaded immediately
 	 */
-    UFUNCTION(BlueprintCallable, Category = "Audio|FMOD", meta = (UnsafeDuringActorConstruction = "true"))
+    UFUNCTION(BlueprintCallable, Category = "Audio|FMOD", meta = (UnsafeDuringActorConstruction = "true", bBlocking = "true"))
     static void LoadBank(class UFMODBank *Bank, bool bBlocking, bool bLoadSampleData);
 
     /** Unloads a bank.
@@ -278,11 +277,11 @@ class FMODSTUDIO_API UFMODBlueprintStatics : public UBlueprintFunctionLibrary
     UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|EventInstance", meta = (UnsafeDuringActorConstruction = "true"))
     static void EventInstanceRelease(FFMODEventInstance EventInstance);
 
-    /** Trigger a cue on an FMOD Event Instance.
+    /** Allow an FMOD Event Instance to continue past a sustain point.
 	 * @param EventInstance - Event instance
 	 */
     UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|EventInstance", meta = (UnsafeDuringActorConstruction = "true"))
-    static void EventInstanceTriggerCue(FFMODEventInstance EventInstance);
+    static void EventInstanceKeyOff(FFMODEventInstance EventInstance);
 
     /** Set 3D attributes on a FMOD Event Instance.
 	 * @param EventInstance - Event instance

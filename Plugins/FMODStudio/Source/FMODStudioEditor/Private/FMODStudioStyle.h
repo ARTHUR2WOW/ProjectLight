@@ -1,13 +1,15 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 
 #pragma once
-#include "SlateCore/Public/Styling/SlateStyle.h"
-#include "EditorStyle/Public/EditorStyleSet.h"
+#include "Styling/SlateStyle.h"
+#include "EditorStyleSet.h"
 
-class FFMODStudioStyle : public FEditorStyle
+class FFMODStudioStyle
 {
 public:
     static void Initialize();
+
+    static FName GetStyleSetName();
 
     static void Shutdown();
 

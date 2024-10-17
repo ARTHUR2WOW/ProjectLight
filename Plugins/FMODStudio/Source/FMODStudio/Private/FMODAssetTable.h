@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 
 #pragma once
 
@@ -12,8 +12,14 @@ class UFMODBankLookup;
 class FFMODAssetTable : public FGCObject
 {
 public:
+    FFMODAssetTable();
+
     //~ FGCObject
     void AddReferencedObjects(FReferenceCollector& Collector) override;
+    virtual FString GetReferencerName() const override
+    {
+        return TEXT("FFMODAssetTable");
+    }
 
     void Load();
 
@@ -22,6 +28,7 @@ public:
     FString GetMasterStringsBankPath() const;
     FString GetMasterAssetsBankPath() const;
     void SetLocale(const FString &LocaleCode);
+    FString GetLocale() const;
     void GetAllBankPaths(TArray<FString> &BankPaths, bool IncludeMasterBank) const;
 
     UFMODAsset *GetAssetByStudioPath(const FString &InStudioPath) const;
@@ -35,6 +42,6 @@ private:
     FString GetLocalizedBankPath(const UDataTable* BankTable) const;
 
     FString ActiveLocale;
-    UFMODBankLookup *BankLookup;
-    UDataTable *AssetLookup;
+    TObjectPtr<UFMODBankLookup> BankLookup;
+    TObjectPtr<UDataTable> AssetLookup;
 };

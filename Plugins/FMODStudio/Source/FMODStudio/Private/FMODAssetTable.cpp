@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 
 #include "FMODAssetTable.h"
 
@@ -19,6 +19,13 @@
 #include "Misc/Paths.h"
 #include "UObject/Package.h"
 
+FFMODAssetTable::FFMODAssetTable()
+    : ActiveLocale(FString()),
+      BankLookup(nullptr),
+      AssetLookup(nullptr)
+{
+}
+
 void FFMODAssetTable::AddReferencedObjects(FReferenceCollector& Collector)
 {
     // The garbage collector will clean up any objects which aren't referenced, doing this tells the garbage collector our lookups are referenced
@@ -37,7 +44,7 @@ void FFMODAssetTable::AddReferencedObjects(FReferenceCollector& Collector)
 void FFMODAssetTable::Load()
 {
     const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
-    FString PackagePath = Settings.ContentBrowserPrefix + PrivateDataPath();
+    FString PackagePath = Settings.GetFullContentPath() / PrivateDataPath();
 
     FString PackageName = PackagePath + BankLookupName();
     UPackage *Package = CreatePackage(*PackageName);
@@ -50,7 +57,17 @@ void FFMODAssetTable::Load()
     }
     else
     {
-        UE_LOG(LogFMOD, Error, TEXT("Failed to load bank lookup"));
+        if (IsRunningCommandlet())
+        {
+            // If we're running in a commandlet (maybe we're cooking or running FMODGenerateAssets
+            // commandlet) Display a message but don't cause the build to Error out.
+            UE_LOG(LogFMOD, Display, TEXT("Failed to load bank lookup"));
+        }
+        else
+        {
+            // If we're running in game or in editor, log this as an Error
+            UE_LOG(LogFMOD, Error, TEXT("Failed to load bank lookup"));
+        }
     }
 
     PackageName = PackagePath + AssetLookupName();
@@ -64,7 +81,17 @@ void FFMODAssetTable::Load()
     }
     else
     {
-        UE_LOG(LogFMOD, Error, TEXT("Failed to load asset lookup"));
+        if (IsRunningCommandlet())
+        {
+            // If we're running in a commandlet (maybe we're cooking or running FMODGenerateAssets
+            // commandlet) Display a message but don't cause the build to Error out.
+            UE_LOG(LogFMOD, Display, TEXT("Failed to load asset lookup"));
+        }
+        else
+        {
+            // If we're running in game or in editor, log this as an Error
+            UE_LOG(LogFMOD, Error, TEXT("Failed to load asset lookup"));
+        }
     }
 }
 
@@ -143,13 +170,18 @@ void FFMODAssetTable::SetLocale(const FString &LocaleCode)
     ActiveLocale = LocaleCode;
 }
 
+FString FFMODAssetTable::GetLocale() const
+{
+    return ActiveLocale;
+}
+
 void FFMODAssetTable::GetAllBankPaths(TArray<FString> &Paths, bool IncludeMasterBank) const
 {
     if (BankLookup)
     {
         const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
 
-        BankLookup->DataTable->ForeachRow<FFMODLocalizedBankTable>(nullptr, [this, &Paths, IncludeMasterBank, &Settings](const FName &, const FFMODLocalizedBankTable& OuterRow) {
+        BankLookup->DataTable->ForeachRow<FFMODLocalizedBankTable>(nullptr, [this, &Paths, IncludeMasterBank, &Settings](const FName&, const FFMODLocalizedBankTable& OuterRow) {
             FString BankPath = GetLocalizedBankPath(OuterRow.Banks);
             bool Skip = false;
 
@@ -186,9 +218,11 @@ UFMODAsset *FFMODAssetTable::GetAssetByStudioPath(const FString &InStudioPath) c
 
         if (Row)
         {
-            UPackage *Package = FindObject<UPackage>(nullptr, *(Row->PackageName));
+            UPackage *Package = CreatePackage(*(Row->PackageName));
+            Package->FullyLoad();
             Asset = FindObject<UFMODAsset>(Package, *(Row->AssetName));
         }
+
     }
 
     return Asset;

@@ -1,4 +1,4 @@
-// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2021.
+// Copyright (c), Firelight Technologies Pty, Ltd. 2012-2024.
 
 #include "SFMODEventEditorPanel.h"
 #include "FMODStudioModule.h"
@@ -6,7 +6,7 @@
 #include "Input/Reply.h"
 #include "Widgets/Input/SNumericEntryBox.h"
 #include "Widgets/Layout/SExpandableArea.h"
-#include "EditorStyle/Public/EditorStyleSet.h"
+#include "Editor/EditorStyle/Public/EditorStyleSet.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "fmod_studio.hpp"
@@ -46,8 +46,7 @@ TSharedRef<SBorder> SFMODEventEditorPanel::ConstructToolbar(FMOD::Studio::EventD
     bool bIsOneshot = false, bIsStream = false, bIs3D = false;
     if (EventDescription != nullptr)
     {
-        EventDescription->getMinimumDistance(&MinDistance);
-        EventDescription->getMaximumDistance(&MaxDistance);
+        EventDescription->getMinMaxDistance(&MinDistance, &MaxDistance);
         EventDescription->getLength(&EventLengthMS);
         EventDescription->isOneshot(&bIsOneshot);
         EventDescription->isStream(&bIsStream);
@@ -77,7 +76,7 @@ TSharedRef<SBorder> SFMODEventEditorPanel::ConstructToolbar(FMOD::Studio::EventD
     }
 
     return SNew(SBorder)
-        .BorderImage(FEditorStyle::Get().GetBrush("ToolPanel.GroupBorder"))
+        .BorderImage(FAppStyle::Get().GetBrush("ToolPanel.GroupBorder"))
         .Padding(6.0f)
         .Content()[SNew(SHorizontalBox) +
                    SHorizontalBox::Slot()
@@ -149,8 +148,7 @@ TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructInfo(FMOD::Studio::E
         float MinDist = 0.0f;
         float MaxDist = 0.0f;
         EventDescription->getLength(&Length);
-        EventDescription->getMinimumDistance(&MinDist);
-        EventDescription->getMaximumDistance(&MaxDist);
+        EventDescription->getMinMaxDistance(&MinDist, &MaxDist);
 
         bool bOneShot = false;
         bool bStream = false;
